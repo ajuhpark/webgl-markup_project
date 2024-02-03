@@ -616,8 +616,8 @@ class Sketch {
         });
         this.time = 0;
         this.setupSettings();
-        this.resize();
         this.addObjects();
+        this.resize();
         this.render();
         this.setupResize();
     }
@@ -640,7 +640,7 @@ class Sketch {
     }
     addObjects() {
         // this.geometry = new THREE.BoxGeometry(0.2,0.2,0.2);
-        this.geometry = new _three.PlaneGeometry(300, 300, 100, 100);
+        this.geometry = new _three.PlaneGeometry(1, 1, 100, 100);
         // this.geometry = new THREE.SphereGeometry(.2,3,3);
         // this.material = new THREE.MeshNormalMaterial();
         // this.material = new THREE.MeshBasicMaterial({
@@ -659,6 +659,7 @@ class Sketch {
                 uTexture: {
                     value: new _three.TextureLoader().load((0, _textureJpgDefault.default))
                 },
+                // uTexture: {value: null},
                 uTextureSize: {
                     value: new _three.Vector2(100, 100)
                 },
@@ -677,22 +678,48 @@ class Sketch {
         });
         this.tl = (0, _gsapDefault.default).timeline().to(this.material.uniforms.uCorners.value, {
             x: 1,
-            duration: 1
+            duration: 5
         }).to(this.material.uniforms.uCorners.value, {
             y: 1,
-            duration: 1
+            duration: 5
         }, 0.2).to(this.material.uniforms.uCorners.value, {
             z: 1,
-            duration: 1
+            duration: 5
         }, 0.4).to(this.material.uniforms.uCorners.value, {
             w: 1,
-            duration: 1
+            duration: 5
         }, 0.6);
         this.mesh = new _three.Mesh(this.geometry, this.material);
+        this.mesh.scale.set(300, 300, 1);
         this.scene.add(this.mesh);
         this.mesh.position.x = 300;
         // this.mesh.rotation.z = .5
-        this.mesh.scale.set(2., 1, 1);
+        this.images = [
+            ...document.querySelectorAll(".js-image")
+        ];
+        this.materials = [];
+        this.imageStore = this.images.map((img)=>{
+            let bounds = img.getBoundingClientRect();
+            // console.log(bounds);
+            let m = this.material.clone();
+            this.materials.push(m);
+            let texture = new _three.Texture(img);
+            texture.needsUpdate = true;
+            m.uniforms.uTexture.value = texture;
+            let mesh = new _three.Mesh(this.geometry, m);
+            this.scene.add(mesh);
+            mesh.scale.set(bounds.width, bounds.height, 1);
+            return {
+                img: img,
+                mesh: mesh,
+                width: bounds.width,
+                height: bounds.height,
+                top: bounds.top,
+                left: bounds.left
+            };
+        });
+    //not sure if i need bottom...it didn't have it in the new one.
+    // this.mesh.scale.set(2.,1,1)
     }
     render() {
         this.time += 0.05;
