@@ -810,25 +810,21 @@ class Sketch {
             let texture = new _three.Texture(img);
             texture.needsUpdate = true;
             m.uniforms.uTexture.value = texture;
-            // img.addEventListener('mouseout',()=>{
-            //     this.tl = gsap.timeline()
-            //     .to(m.uniforms.uCorners.value,{
-            //         x:0,
-            //         duration: 0.4
-            //     })
-            //     .to(m.uniforms.uCorners.value,{
-            //         y:0,
-            //         duration: 0.4
-            //     },0.1)
-            //     .to(m.uniforms.uCorners.value,{
-            //         z:0,
-            //         duration: 0.4
-            //     },0.2)
-            //     .to(m.uniforms.uCorners.value,{
-            //         w:0,
-            //         duration: 0.4
-            //     },0.3)
-            // })
+            img.addEventListener("mouseover", ()=>{
+                this.tl = (0, _gsapDefault.default).timeline().to(m.uniforms.uCorners.value, {
+                    x: 0,
+                    duration: 0.4
+                }).to(m.uniforms.uCorners.value, {
+                    y: 0,
+                    duration: 0.4
+                }, 0.1).to(m.uniforms.uCorners.value, {
+                    z: 0,
+                    duration: 0.4
+                }, 0.2).to(m.uniforms.uCorners.value, {
+                    w: 0,
+                    duration: 0.4
+                }, 0.3);
+            });
             let mesh = new _three.Mesh(this.geometry, m);
             this.scene.add(mesh);
             mesh.scale.set(bounds.width, bounds.height, 1);
