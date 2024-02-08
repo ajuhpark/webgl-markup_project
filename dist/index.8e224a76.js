@@ -610,7 +610,6 @@ class Sketch {
             alpha: true
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        // this.renderer.setPixelRatio(2);
         this.container.appendChild(this.renderer.domElement);
         this.controls = new (0, _orbitControlsJs.OrbitControls)(this.camera, this.renderer.domElement);
         this.materials = [];
@@ -641,18 +640,20 @@ class Sketch {
                             "home"
                         ]
                     },
-                    leave (data) {
+                    leave (data1) {
+                        // alert('from home');
                         that.animationRunning = true;
                         that.asscroll.disable();
-                        return (0, _gsapDefault.default).timeline().to(data.current.container, {
+                        return (0, _gsapDefault.default).timeline()// console.log(data);
+                        .to(data1.current.container, {
                             opacity: 0.,
                             duration: 0.5
                         });
                     },
-                    enter (data) {
+                    enter () {
                         that.asscroll = new (0, _asscrollDefault.default)({
-                            disableRaf: true,
-                            containerElement: data.next.container.querySelector("[asscroll-container]")
+                            dsiableRaf: true,
+                            containerElement: data.next.container.querySelectorAll("[asscroll-container")
                         });
                         that.asscroll.enable({
                             newScrollElements: data.next.container.querySelector(".scroll-wrap")
@@ -660,8 +661,7 @@ class Sketch {
                         return (0, _gsapDefault.default).timeline().from(data.next.container, {
                             opacity: 0.,
                             onComplete: ()=>{
-                                that.container.style.visibility = "hidden";
-                                that.animationRunning = false;
+                                that.container.style.display = "none";
                             }
                         });
                     }
@@ -673,35 +673,29 @@ class Sketch {
                             "inside"
                         ]
                     },
-                    leave (data) {
+                    leave (data1) {
+                        // alert('from inside');
                         that.asscroll.disable();
-                        return (0, _gsapDefault.default).timeline().to(".curtain", {
+                        return (0, _gsapDefault.default).timeline()// console.log(data);
+                        .to("curtain", {
                             duration: 0.3,
                             y: 0
-                        }).to(data.current.container, {
+                        }).to(data1.currentcurrent.container, {
                             opacity: 0.
                         });
                     },
-                    enter (data) {
+                    enter () {
                         that.asscroll = new (0, _asscrollDefault.default)({
-                            disableRaf: true,
-                            containerElement: data.next.container.querySelector("[asscroll-container]")
+                            dsiableRaf: true,
+                            containerElement: data.next.container.querySelectorAll("[asscroll-container")
                         });
                         that.asscroll.enable({
                             horizontalScroll: true,
                             newScrollElements: data.next.container.querySelector(".scroll-wrap")
                         });
-                        // cleeaning old arrays
-                        that.imageStore.forEach((m)=>{
-                            that.scene.remove(m.mesh);
-                        });
-                        that.imageStore = [];
-                        that.materials = [];
                         that.addObjects();
                         that.resize();
-                        that.addClickEvents();
-                        that.container.style.visibility = "visible";
-                        return (0, _gsapDefault.default).timeline().to(".curtain", {
+                        return (0, _gsapDefault.default).timeline().to("curtain", {
                             duration: 0.3,
                             y: "-100%"
                         }).from(data.next.container, {
@@ -710,25 +704,6 @@ class Sketch {
                     }
                 }
             ]
-        });
-    }
-    addClickEvents() {
-        this.imageStore.forEach((i)=>{
-            i.img.addEventListener("click", ()=>{
-                let tl = (0, _gsapDefault.default).timeline().to(i.mesh.material.uniforms.uCorners.value, {
-                    x: 1,
-                    duration: 0.4
-                }).to(i.mesh.material.uniforms.uCorners.value, {
-                    y: 1,
-                    duration: 0.4
-                }, 0.1).to(i.mesh.material.uniforms.uCorners.value, {
-                    z: 1,
-                    duration: 0.4
-                }, 0.2).to(i.mesh.material.uniforms.uCorners.value, {
-                    w: 1,
-                    duration: 0.4
-                }, 0.3);
-            });
         });
     }
     setupSettings() {
@@ -758,18 +733,24 @@ class Sketch {
             i.height = bounds.height;
             i.mesh.material.uniforms.uQuadSize.value.x = bounds.width;
             i.mesh.material.uniforms.uQuadSize.value.y = bounds.height;
-            i.mesh.material.uniforms.uTextureSize.value.x = bounds.width;
-            i.mesh.material.uniforms.uTextureSize.value.y = bounds.height;
+            i.mesh.material.uniforms.uTexture.value.x = bounds.width;
+            i.mesh.material.uniforms.uTexture.value.y = bounds.height;
         });
     }
     setupResize() {
         window.addEventListener("resize", this.resize.bind(this));
     }
     addObjects() {
+        // this.geometry = new THREE.BoxGeometry(0.2,0.2,0.2);
         this.geometry = new _three.PlaneGeometry(1, 1, 100, 100);
-        console.log(this.geometry);
+        // this.geometry = new THREE.SphereGeometry(.2,3,3);
+        // this.material = new THREE.MeshNormalMaterial();
+        // this.material = new THREE.MeshBasicMaterial({
+        //     color: 0xffff00
+        // })
+        // this.material = new THREE.MeshLambertMaterial();
         this.material = new _three.ShaderMaterial({
-            // wireframe: true,
+            // wireframe:true,
             uniforms: {
                 time: {
                     value: 1.0
@@ -778,8 +759,9 @@ class Sketch {
                     value: 0
                 },
                 uTexture: {
-                    value: null
+                    value: new _three.TextureLoader().load(testTexture)
                 },
+                // uTexture: {value: null},
                 uTextureSize: {
                     value: new _three.Vector2(100, 100)
                 },
@@ -798,13 +780,15 @@ class Sketch {
         });
         this.mesh = new _three.Mesh(this.geometry, this.material);
         this.mesh.scale.set(300, 300, 1);
-        // this.scene.add( this.mesh );
+        this.scene.add(this.mesh);
         this.mesh.position.x = 300;
+        // this.mesh.rotation.z = .5
         this.images = [
             ...document.querySelectorAll(".js-image")
         ];
         this.imageStore = this.images.map((img)=>{
             let bounds = img.getBoundingClientRect();
+            // console.log(bounds);
             let m = this.material.clone();
             this.materials.push(m);
             let texture = new _three.Texture(img);
@@ -812,18 +796,33 @@ class Sketch {
             m.uniforms.uTexture.value = texture;
             img.addEventListener("mouseover", ()=>{
                 this.tl = (0, _gsapDefault.default).timeline().to(m.uniforms.uCorners.value, {
+                    x: 1,
+                    duration: 0.4
+                }).to(m.uniforms.uCorners.value, {
+                    y: 1,
+                    duration: 0.4
+                }, 0.2).to(m.uniforms.uCorners.value, {
+                    z: 1,
+                    duration: 0.4
+                }, 0.4).to(m.uniforms.uCorners.value, {
+                    w: 1,
+                    duration: 0.4
+                }, 0.6);
+            });
+            img.addEventListener("mouseout", ()=>{
+                this.tl = (0, _gsapDefault.default).timeline().to(m.uniforms.uCorners.value, {
                     x: 0,
                     duration: 0.4
                 }).to(m.uniforms.uCorners.value, {
                     y: 0,
                     duration: 0.4
-                }, 0.1).to(m.uniforms.uCorners.value, {
+                }, 0.2).to(m.uniforms.uCorners.value, {
                     z: 0,
                     duration: 0.4
-                }, 0.2).to(m.uniforms.uCorners.value, {
+                }, 0.4).to(m.uniforms.uCorners.value, {
                     w: 0,
                     duration: 0.4
-                }, 0.3);
+                }, 0.6);
             });
             let mesh = new _three.Mesh(this.geometry, m);
             this.scene.add(mesh);
@@ -837,10 +836,12 @@ class Sketch {
                 left: bounds.left
             };
         });
+    //not sure if i need bottom...it didn't have it in the new one.
+    // this.mesh.scale.set(2.,1,1)
     }
     setPosition() {
-        // console.log(this.asscroll.currentPos)
-        if (!this.animationRunning) this.imageStore.forEach((o)=>{
+        // console.log(this.asscroll.currentPos);
+        this.imageStore.forEach((o)=>{
             o.mesh.position.x = -this.asscroll.currentPos + o.left - this.width / 2 + o.width / 2;
             o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
         });
@@ -848,9 +849,14 @@ class Sketch {
     render() {
         this.time += 0.05;
         this.material.uniforms.time.value = this.time;
+        // this.material.uniforms.uProgress.value = this.settings.progress;
         this.asscroll.update();
         this.setPosition();
+        // this.tl.progress(this.settings.progress)
+        this.mesh.rotation.x = this.time / 2000;
+        this.mesh.rotation.y = this.time / 1000;
         this.renderer.render(this.scene, this.camera);
+        // console.log(this.time);
         requestAnimationFrame(this.render.bind(this));
     }
 }
