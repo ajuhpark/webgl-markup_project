@@ -142,7 +142,7 @@
       this[globalName] = mainExports;
     }
   }
-})({"l9Hmc":[function(require,module,exports) {
+})({"gVcgU":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
@@ -589,12 +589,16 @@ var _fragmentGlsl = require("./shaders/fragment.glsl");
 var _fragmentGlslDefault = parcelHelpers.interopDefault(_fragmentGlsl);
 var _vertexGlsl = require("./shaders/vertex.glsl");
 var _vertexGlslDefault = parcelHelpers.interopDefault(_vertexGlsl);
-// import testTexture from '../img/texture.jpg';
+// import testTexture from '../img/1.jpg';
+var _1Jpg = require("../img/1.jpg");
+var _1JpgDefault = parcelHelpers.interopDefault(_1Jpg);
 var _datGui = require("dat.gui");
 var _gsap = require("gsap");
 var _gsapDefault = parcelHelpers.interopDefault(_gsap);
 var _core = require("@barba/core");
 var _coreDefault = parcelHelpers.interopDefault(_core);
+console.log(_three.REVISION);
+console.log((0, _gsapDefault.default));
 class Sketch {
     constructor(options){
         this.container = options.domElement;
@@ -610,6 +614,7 @@ class Sketch {
             alpha: true
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(2);
         this.container.appendChild(this.renderer.domElement);
         this.controls = new (0, _orbitControlsJs.OrbitControls)(this.camera, this.renderer.domElement);
         this.materials = [];
@@ -640,20 +645,19 @@ class Sketch {
                             "home"
                         ]
                     },
-                    leave (data1) {
-                        // alert('from home');
+                    leave (data) {
+                        // alert('from home')
                         that.animationRunning = true;
                         that.asscroll.disable();
-                        return (0, _gsapDefault.default).timeline()// console.log(data);
-                        .to(data1.current.container, {
+                        return (0, _gsapDefault.default).timeline().to(data.current.container, {
                             opacity: 0.,
                             duration: 0.5
                         });
                     },
-                    enter () {
+                    enter (data) {
                         that.asscroll = new (0, _asscrollDefault.default)({
-                            dsiableRaf: true,
-                            containerElement: data.next.container.querySelectorAll("[asscroll-container")
+                            disableRaf: true,
+                            containerElement: data.next.container.querySelector("[asscroll-container]")
                         });
                         that.asscroll.enable({
                             newScrollElements: data.next.container.querySelector(".scroll-wrap")
@@ -661,7 +665,8 @@ class Sketch {
                         return (0, _gsapDefault.default).timeline().from(data.next.container, {
                             opacity: 0.,
                             onComplete: ()=>{
-                                that.container.style.display = "none";
+                                // that.container.style.visibility = "hidden";
+                                that.animationRunning = false;
                             }
                         });
                     }
@@ -673,29 +678,36 @@ class Sketch {
                             "inside"
                         ]
                     },
-                    leave (data1) {
-                        // alert('from inside');
+                    leave (data) {
+                        // alert('from inside')
                         that.asscroll.disable();
-                        return (0, _gsapDefault.default).timeline()// console.log(data);
-                        .to("curtain", {
+                        return (0, _gsapDefault.default).timeline().to(".curtain", {
                             duration: 0.3,
                             y: 0
-                        }).to(data1.currentcurrent.container, {
+                        }).to(data.current.container, {
                             opacity: 0.
                         });
                     },
-                    enter () {
+                    enter (data) {
                         that.asscroll = new (0, _asscrollDefault.default)({
-                            dsiableRaf: true,
-                            containerElement: data.next.container.querySelectorAll("[asscroll-container")
+                            disableRaf: true,
+                            containerElement: data.next.container.querySelector("[asscroll-container]")
                         });
                         that.asscroll.enable({
                             horizontalScroll: true,
                             newScrollElements: data.next.container.querySelector(".scroll-wrap")
                         });
+                        // cleaning old arrays
+                        that.imageStore.forEach((m)=>{
+                            that.scene.remove(m.mesh);
+                        });
+                        that.imageStore = [];
+                        that.materials = [];
                         that.addObjects();
                         that.resize();
-                        return (0, _gsapDefault.default).timeline().to("curtain", {
+                        that.addClickEvents();
+                        that.container.style.visibility = "visible";
+                        return (0, _gsapDefault.default).timeline().to(".curtain", {
                             duration: 0.3,
                             y: "-100%"
                         }).from(data.next.container, {
@@ -704,6 +716,25 @@ class Sketch {
                     }
                 }
             ]
+        });
+    }
+    addClickEvents() {
+        this.imageStore.forEach((i)=>{
+            i.img.addEventListener("click", ()=>{
+                let tl = (0, _gsapDefault.default).timeline().to(i.mesh.material.uniforms.uCorners.value, {
+                    x: 1,
+                    duration: 0.4
+                }).to(i.mesh.material.uniforms.uCorners.value, {
+                    y: 1,
+                    duration: 0.4
+                }, 0.1).to(i.mesh.material.uniforms.uCorners.value, {
+                    z: 1,
+                    duration: 0.4
+                }, 0.2).to(i.mesh.material.uniforms.uCorners.value, {
+                    w: 1,
+                    duration: 0.4
+                }, 0.3);
+            });
         });
     }
     setupSettings() {
@@ -733,24 +764,22 @@ class Sketch {
             i.height = bounds.height;
             i.mesh.material.uniforms.uQuadSize.value.x = bounds.width;
             i.mesh.material.uniforms.uQuadSize.value.y = bounds.height;
-            i.mesh.material.uniforms.uTexture.value.x = bounds.width;
-            i.mesh.material.uniforms.uTexture.value.y = bounds.height;
+            i.mesh.material.uniforms.uTextureSize.value.x = bounds.width;
+            i.mesh.material.uniforms.uTextureSize.value.y = bounds.height;
         });
     }
     setupResize() {
         window.addEventListener("resize", this.resize.bind(this));
     }
     addObjects() {
-        // this.geometry = new THREE.BoxGeometry(0.2,0.2,0.2);
         this.geometry = new _three.PlaneGeometry(1, 1, 100, 100);
-        // this.geometry = new THREE.SphereGeometry(.2,3,3);
-        // this.material = new THREE.MeshNormalMaterial();
-        // this.material = new THREE.MeshBasicMaterial({
-        //     color: 0xffff00
-        // })
-        // this.material = new THREE.MeshLambertMaterial();
+        console.log(this.geometry);
+        // something i'm trying out
+        // const textureLoader = new THREE.TextureLoader()
+        // const testTexture = textureLoader.load('../img/2.jpg')
+        // console.log(testTexture)
         this.material = new _three.ShaderMaterial({
-            // wireframe:true,
+            // wireframe: true,
             uniforms: {
                 time: {
                     value: 1.0
@@ -759,9 +788,9 @@ class Sketch {
                     value: 0
                 },
                 uTexture: {
-                    value: new _three.TextureLoader().load(testTexture)
+                    value: null
                 },
-                // uTexture: {value: null},
+                // uTexture: {value: new THREE.TextureLoader().load('/Users/andrewpark/Documents/Git Repositories/webgl-markup_project/img/1.jpg')},
                 uTextureSize: {
                     value: new _three.Vector2(100, 100)
                 },
@@ -780,53 +809,41 @@ class Sketch {
         });
         this.mesh = new _three.Mesh(this.geometry, this.material);
         this.mesh.scale.set(300, 300, 1);
-        this.scene.add(this.mesh);
+        // this.scene.add( this.mesh );
         this.mesh.position.x = 300;
-        // this.mesh.rotation.z = .5
         this.images = [
             ...document.querySelectorAll(".js-image")
         ];
         this.imageStore = this.images.map((img)=>{
             let bounds = img.getBoundingClientRect();
-            // console.log(bounds);
+            // console.log(bounds)
             let m = this.material.clone();
             this.materials.push(m);
             let texture = new _three.Texture(img);
             texture.needsUpdate = true;
             m.uniforms.uTexture.value = texture;
-            img.addEventListener("mouseover", ()=>{
-                this.tl = (0, _gsapDefault.default).timeline().to(m.uniforms.uCorners.value, {
-                    x: 1,
-                    duration: 0.4
-                }).to(m.uniforms.uCorners.value, {
-                    y: 1,
-                    duration: 0.4
-                }, 0.2).to(m.uniforms.uCorners.value, {
-                    z: 1,
-                    duration: 0.4
-                }, 0.4).to(m.uniforms.uCorners.value, {
-                    w: 1,
-                    duration: 0.4
-                }, 0.6);
-            });
-            img.addEventListener("mouseout", ()=>{
-                this.tl = (0, _gsapDefault.default).timeline().to(m.uniforms.uCorners.value, {
-                    x: 0,
-                    duration: 0.4
-                }).to(m.uniforms.uCorners.value, {
-                    y: 0,
-                    duration: 0.4
-                }, 0.2).to(m.uniforms.uCorners.value, {
-                    z: 0,
-                    duration: 0.4
-                }, 0.4).to(m.uniforms.uCorners.value, {
-                    w: 0,
-                    duration: 0.4
-                }, 0.6);
-            });
+            // img.addEventListener('mouseout',()=>{
+            //     this.tl = gsap.timeline()
+            //     .to(m.uniforms.uCorners.value,{
+            //         x:0,
+            //         duration: 0.4
+            //     })
+            //     .to(m.uniforms.uCorners.value,{
+            //         y:0,
+            //         duration: 0.4
+            //     },0.1)
+            //     .to(m.uniforms.uCorners.value,{
+            //         z:0,
+            //         duration: 0.4
+            //     },0.2)
+            //     .to(m.uniforms.uCorners.value,{
+            //         w:0,
+            //         duration: 0.4
+            //     },0.3)
+            // })
             let mesh = new _three.Mesh(this.geometry, m);
             this.scene.add(mesh);
-            mesh.scale.set(bounds.width, bounds.height, 1);
+            this.mesh.scale.set(bounds.width, bounds.height, 1);
             return {
                 img: img,
                 mesh: mesh,
@@ -836,12 +853,10 @@ class Sketch {
                 left: bounds.left
             };
         });
-    //not sure if i need bottom...it didn't have it in the new one.
-    // this.mesh.scale.set(2.,1,1)
     }
     setPosition() {
-        // console.log(this.asscroll.currentPos);
-        this.imageStore.forEach((o)=>{
+        // console.log(this.asscroll.currentPos)
+        if (!this.animationRunning) this.imageStore.forEach((o)=>{
             o.mesh.position.x = -this.asscroll.currentPos + o.left - this.width / 2 + o.width / 2;
             o.mesh.position.y = -o.top + this.height / 2 - o.height / 2;
         });
@@ -849,14 +864,10 @@ class Sketch {
     render() {
         this.time += 0.05;
         this.material.uniforms.time.value = this.time;
-        // this.material.uniforms.uProgress.value = this.settings.progress;
         this.asscroll.update();
         this.setPosition();
         // this.tl.progress(this.settings.progress)
-        this.mesh.rotation.x = this.time / 2000;
-        this.mesh.rotation.y = this.time / 1000;
         this.renderer.render(this.scene, this.camera);
-        // console.log(this.time);
         requestAnimationFrame(this.render.bind(this));
     }
 }
@@ -865,7 +876,7 @@ new Sketch({
     domElement: document.getElementById("container")
 });
 
-},{"three":"ktPTu","@ashthornton/asscroll":"ci0KI","three/examples/jsm/controls/OrbitControls.js":"7mqRv","./shaders/fragment.glsl":"kV6xp","./shaders/vertex.glsl":"7dqmU","dat.gui":"k3xQk","gsap":"fPSuC","@barba/core":"gIWbX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"ktPTu":[function(require,module,exports) {
+},{"three":"ktPTu","@ashthornton/asscroll":"ci0KI","three/examples/jsm/controls/OrbitControls.js":"7mqRv","./shaders/fragment.glsl":"kV6xp","./shaders/vertex.glsl":"7dqmU","dat.gui":"k3xQk","gsap":"fPSuC","@barba/core":"gIWbX","@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O","../img/1.jpg":"1BtoC"}],"ktPTu":[function(require,module,exports) {
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -31723,7 +31734,7 @@ if (typeof window !== "undefined") {
     else window.__THREE__ = REVISION;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"hZ54O":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -33872,11 +33883,11 @@ class OrbitControls extends (0, _three.EventDispatcher) {
     }
 }
 
-},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kV6xp":[function(require,module,exports) {
+},{"three":"ktPTu","@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"kV6xp":[function(require,module,exports) {
 module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float uProgress;\nuniform vec2 uTextureSize;\nuniform sampler2D uTexture;\nvarying vec2 vUv;\n\nvarying vec2 vSize;\n\nvec2 getUV(vec2 uv, vec2 textureSize, vec2 quadSize){\n    vec2 tempUV = uv - vec2(0.5);\n\n    float quadAspect = quadSize.x/quadSize.y;\n    float textureAspect = textureSize.x/textureSize.y;\n    if(quadAspect<textureAspect){\n        tempUV = tempUV*vec2(quadAspect/textureAspect,1.);\n    } else{\n        tempUV = tempUV*vec2(1.,textureAspect/quadAspect);\n    }\n\n    tempUV += vec2(0.5);\n    return tempUV;\n}\nvoid main() {\n\n    vec2 correctUV = getUV(vUv,uTextureSize,vSize);\n    vec4 image = texture2D(uTexture,correctUV);\n    gl_FragColor = vec4( vUv,0.,1.);\n    gl_FragColor = image;\n}";
 
 },{}],"7dqmU":[function(require,module,exports) {
-module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float uProgress;\nuniform vec2 uResolution;\nuniform vec2 uQuadSize;\nuniform vec4 uCorners;\nvarying vec2 vSize;\n\nvarying vec2 vUv;\nvoid main() {\n    float PI = 3.1415926;\n    vUv = uv;\n    float sine = sin(PI*uProgress);\n    float waves = sine*0.1*sin(5.*length(uv) + 15.*uProgress);\n    vec4 defaultState = modelMatrix*vec4( position, 1.0 );\n    vec4 fullScreenState = vec4( position, 1.0 );\n    fullScreenState.x *=uResolution.x;\n    fullScreenState.y *=uResolution.y;\n    fullScreenState.z +=uCorners.x;\n    float cornersProgress = mix(\n        mix(uCorners.z,uCorners.w,uv.x),\n        mix(uCorners.x,uCorners.y,uv.x),\n        uv.y\n    );\n\n    vec4 finalState = mix(defaultState,fullScreenState,cornersProgress);\n\n    vSize = mix(uQuadSize,uResolution,cornersProgress);\n\n    gl_Position = projectionMatrix * viewMatrix * finalState;\n}";
+module.exports = "#define GLSLIFY 1\nuniform float time;\nuniform float uProgress;\nuniform vec2 uResolution;\nuniform vec2 uQuadSize;\nuniform vec4 uCorners;\nvarying vec2 vSize;\n\nvarying vec2 vUv;\nvoid main() {\n    float PI = 3.1415926;\n    vUv = uv;\n    float sine = sin(PI*uProgress);\n    float waves = sine * 0.1 * sin( 5. * length(uv) + 15. * uProgress);\n    vec4 defaultState = modelMatrix*vec4( position, 1.0 );\n    vec4 fullScreenState = vec4( position, 1.0 );\n    fullScreenState.x *=uResolution.x;\n    fullScreenState.y *=uResolution.y;\n    fullScreenState.z +=uCorners.x;\n    float cornersProgress = mix(\n        mix(uCorners.z,uCorners.w,uv.x),\n        mix(uCorners.x,uCorners.y,uv.x),\n        uv.y\n    );\n\n    vec4 finalState = mix(defaultState,fullScreenState,cornersProgress);\n\n    vSize = mix(uQuadSize,uResolution,cornersProgress);\n\n    gl_Position = projectionMatrix * viewMatrix * finalState;\n}";
 
 },{}],"k3xQk":[function(require,module,exports) {
 /**
@@ -36169,7 +36180,7 @@ var index = {
 };
 exports.default = index;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fPSuC":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"fPSuC":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "gsap", ()=>gsapWithCSS);
@@ -36202,7 +36213,7 @@ var _csspluginJs = require("./CSSPlugin.js");
 var gsapWithCSS = (0, _gsapCoreJs.gsap).registerPlugin((0, _csspluginJs.CSSPlugin)) || (0, _gsapCoreJs.gsap), // to protect from tree shaking
 TweenMaxWithCSS = gsapWithCSS.core.Tween;
 
-},{"./gsap-core.js":"05eeC","./CSSPlugin.js":"l02JQ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"05eeC":[function(require,module,exports) {
+},{"./gsap-core.js":"05eeC","./CSSPlugin.js":"l02JQ","@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"05eeC":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "GSCache", ()=>GSCache);
@@ -39226,7 +39237,7 @@ _coreReady = 1;
 _windowExists() && _wake();
 var Power0 = _easeMap.Power0, Power1 = _easeMap.Power1, Power2 = _easeMap.Power2, Power3 = _easeMap.Power3, Power4 = _easeMap.Power4, Linear = _easeMap.Linear, Quad = _easeMap.Quad, Cubic = _easeMap.Cubic, Quart = _easeMap.Quart, Quint = _easeMap.Quint, Strong = _easeMap.Strong, Elastic = _easeMap.Elastic, Back = _easeMap.Back, SteppedEase = _easeMap.SteppedEase, Bounce = _easeMap.Bounce, Sine = _easeMap.Sine, Expo = _easeMap.Expo, Circ = _easeMap.Circ;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"l02JQ":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"l02JQ":[function(require,module,exports) {
 /*!
  * CSSPlugin 3.12.5
  * https://gsap.com
@@ -40193,7 +40204,7 @@ var CSSPlugin = {
 });
 (0, _gsapCoreJs.gsap).registerPlugin(CSSPlugin);
 
-},{"./gsap-core.js":"05eeC","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gIWbX":[function(require,module,exports) {
+},{"./gsap-core.js":"05eeC","@parcel/transformer-js/src/esmodule-helpers.js":"hZ54O"}],"gIWbX":[function(require,module,exports) {
 !function(t, n) {
     module.exports = n();
 }(this, function() {
@@ -41340,6 +41351,44 @@ var CSSPlugin = {
     }());
 });
 
-},{}]},["l9Hmc","3ogn5"], "3ogn5", "parcelRequire94c2")
+},{}],"1BtoC":[function(require,module,exports) {
+module.exports = require("fd17ddcdbe8a39d8").getBundleURL("arkMG") + "1.ac411b69.jpg" + "?" + Date.now();
+
+},{"fd17ddcdbe8a39d8":"fehqv"}],"fehqv":[function(require,module,exports) {
+"use strict";
+var bundleURL = {};
+function getBundleURLCached(id) {
+    var value = bundleURL[id];
+    if (!value) {
+        value = getBundleURL();
+        bundleURL[id] = value;
+    }
+    return value;
+}
+function getBundleURL() {
+    try {
+        throw new Error();
+    } catch (err) {
+        var matches = ("" + err.stack).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^)\n]+/g);
+        if (matches) // The first two stack frames will be this function and getBundleURLCached.
+        // Use the 3rd one, which will be a runtime in the original bundle.
+        return getBaseURL(matches[2]);
+    }
+    return "/";
+}
+function getBaseURL(url) {
+    return ("" + url).replace(/^((?:https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/.+)\/[^/]+$/, "$1") + "/";
+}
+// TODO: Replace uses with `new URL(url).origin` when ie11 is no longer supported.
+function getOrigin(url) {
+    var matches = ("" + url).match(/(https?|file|ftp|(chrome|moz|safari-web)-extension):\/\/[^/]+/);
+    if (!matches) throw new Error("Origin not found");
+    return matches[0];
+}
+exports.getBundleURL = getBundleURLCached;
+exports.getBaseURL = getBaseURL;
+exports.getOrigin = getOrigin;
+
+},{}]},["gVcgU","3ogn5"], "3ogn5", "parcelRequire94c2")
 
 //# sourceMappingURL=index.8e224a76.js.map
