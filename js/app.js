@@ -257,6 +257,7 @@ export default class Sketch{
             this.materials.push(m);
 
             //in three js we can create textures out of dom elements (below)
+            // I took this from comment in discord. This part had to be fixed for it to work.
             const image = new Image();
             image.src = img.src;
             let texture = new THREE.Texture(image);
