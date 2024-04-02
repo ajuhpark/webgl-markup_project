@@ -255,7 +255,12 @@ export default class Sketch{
             // console.log(bounds)
             let m = this.material.clone()
             this.materials.push(m);
-            let texture = new THREE.Texture(img);
+
+            //in three js we can create textures out of dom elements (below)
+            const image = new Image();
+            image.src = img.src;
+            let texture = new THREE.Texture(image);
+            // let texture = new THREE.Texture(img);
             texture.needsUpdate = true;
 
             m.uniforms.uTexture.value = texture;

@@ -48571,7 +48571,12 @@ var Sketch = exports.default = /*#__PURE__*/function () {
         // console.log(bounds)
         var m = _this2.material.clone();
         _this2.materials.push(m);
-        var texture = new THREE.Texture(img);
+
+        //in three js we can create textures out of dom elements (below)
+        var image = new Image();
+        image.src = img.src;
+        var texture = new THREE.Texture(image);
+        // let texture = new THREE.Texture(img);
         texture.needsUpdate = true;
         m.uniforms.uTexture.value = texture;
 
@@ -48663,7 +48668,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51287" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49600" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
