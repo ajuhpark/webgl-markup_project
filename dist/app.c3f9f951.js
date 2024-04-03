@@ -48409,7 +48409,7 @@ var Sketch = exports.default = /*#__PURE__*/function () {
             return _gsap.default.timeline().from(data.next.container, {
               opacity: 0.,
               onComplete: function onComplete() {
-                // that.container.style.visibility = "hidden";
+                that.container.style.visibility = "hidden";
                 that.animationRunning = false;
               }
             });
@@ -48444,7 +48444,9 @@ var Sketch = exports.default = /*#__PURE__*/function () {
             });
             that.imageStore = [];
             that.materials = [];
+            // adding objects from webgl
             that.addObjects();
+            //resizing the uniforms
             that.resize();
             that.addClickEvents();
             that.container.style.visibility = "visible";
@@ -48669,7 +48671,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49600" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60855" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -89,7 +89,7 @@ export default class Sketch{
                 .from(data.next.container,{
                     opacity: 0.,
                     onComplete: ()=>{
-                        // that.container.style.visibility = "hidden";
+                        that.container.style.visibility = "hidden";
                         that.animationRunning = false
                     }
                 })
@@ -127,7 +127,9 @@ export default class Sketch{
                 })
                 that.imageStore = []
                 that.materials = []
+                // adding objects from webgl
                 that.addObjects();
+                //resizing the uniforms
                 that.resize();
                 that.addClickEvents()
                 that.container.style.visibility = "visible";
